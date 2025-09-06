@@ -3,7 +3,8 @@ fn main() {
     println!("cargo:rerun-if-changed=cpp/metrics.cpp");
 
     let mut build = cc::Build::new();
-    build.cpp(true)
+    build
+        .cpp(true)
         .file("cpp/metrics.cpp")
         .flag_if_supported("-std=c++17")
         .warnings(true);
