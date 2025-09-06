@@ -1,0 +1,3 @@
+[submodule "submodules/UMAP-visualization"]
+	path = submodules/UMAP-visualization
+	url = https://github.com/Data-Wrangling-and-Visualisation/UMAP-visualization.git
