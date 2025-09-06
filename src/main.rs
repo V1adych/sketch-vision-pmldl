@@ -4,7 +4,10 @@ use anyhow::Result;
 use clap::{ArgAction, Parser};
 
 #[derive(Parser, Debug)]
-#[command(name = "sketch-vision", about = "Detect edges in images using the Sobel operator.")]
+#[command(
+    name = "sketch-vision",
+    about = "Detect edges in images using the Sobel operator."
+)]
 struct Cli {
     /// Input image path (JPEG/PNG/etc.)
     input: PathBuf,
@@ -13,7 +16,6 @@ struct Cli {
     #[arg(short, long, default_value = "edges.png")]
     output: PathBuf,
 
-    /// Optional threshold 0..255; if provided, binarizes the edges
     #[arg(short, long)]
     threshold: Option<u8>,
 

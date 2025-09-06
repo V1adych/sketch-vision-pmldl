@@ -14,8 +14,10 @@ pub fn sobel_edges(image: &DynamicImage) -> GrayImage {
     let gray: GrayImage = image.to_luma8();
     let (width, height) = gray.dimensions();
 
-    let mut gx: ImageBuffer<Luma<f32>, Vec<f32>> = ImageBuffer::from_pixel(width, height, Luma([0.0]));
-    let mut gy: ImageBuffer<Luma<f32>, Vec<f32>> = ImageBuffer::from_pixel(width, height, Luma([0.0]));
+    let mut gx: ImageBuffer<Luma<f32>, Vec<f32>> =
+        ImageBuffer::from_pixel(width, height, Luma([0.0]));
+    let mut gy: ImageBuffer<Luma<f32>, Vec<f32>> =
+        ImageBuffer::from_pixel(width, height, Luma([0.0]));
 
     let kx: [[f32; 3]; 3] = [[-1.0, 0.0, 1.0], [-2.0, 0.0, 2.0], [-1.0, 0.0, 1.0]];
     let ky: [[f32; 3]; 3] = [[-1.0, -2.0, -1.0], [0.0, 0.0, 0.0], [1.0, 2.0, 1.0]];
@@ -36,7 +38,8 @@ pub fn sobel_edges(image: &DynamicImage) -> GrayImage {
         }
     }
 
-    let mut mag: ImageBuffer<Luma<f32>, Vec<f32>> = ImageBuffer::from_pixel(width, height, Luma([0.0]));
+    let mut mag: ImageBuffer<Luma<f32>, Vec<f32>> =
+        ImageBuffer::from_pixel(width, height, Luma([0.0]));
     let mut max_val = 0.0f32;
 
     for y in 1..height - 1 {
@@ -44,7 +47,9 @@ pub fn sobel_edges(image: &DynamicImage) -> GrayImage {
             let sx = gx.get_pixel(x, y).0[0];
             let sy = gy.get_pixel(x, y).0[0];
             let m = (sx * sx + sy * sy).sqrt();
-            if m > max_val { max_val = m; }
+            if m > max_val {
+                max_val = m;
+            }
             mag.put_pixel(x, y, Luma([m]));
         }
     }
@@ -64,7 +69,12 @@ pub fn sobel_edges(image: &DynamicImage) -> GrayImage {
     out
 }
 
-pub fn save_edges(input_path: &Path, output_path: &Path, threshold: Option<u8>, invert: bool) -> Result<()> {
+pub fn save_edges(
+    input_path: &Path,
+    output_path: &Path,
+    threshold: Option<u8>,
+    invert: bool,
+) -> Result<()> {
     let img = image::open(input_path)?;
     let mut edges = sobel_edges(&img);
 
