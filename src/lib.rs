@@ -2,6 +2,14 @@ use anyhow::Result;
 use image::{DynamicImage, GrayImage, ImageBuffer, Luma};
 use std::path::Path;
 
+extern "C" {
+    fn count_nonzero(data: *const u8, len: u32) -> u32;
+}
+
+pub fn count_nonzero_bytes(data: &[u8]) -> u32 {
+    unsafe { count_nonzero(data.as_ptr(), data.len() as u32) }
+}
+
 pub fn sobel_edges(image: &DynamicImage) -> GrayImage {
     let gray: GrayImage = image.to_luma8();
     let (width, height) = gray.dimensions();
@@ -75,4 +83,15 @@ pub fn save_edges(input_path: &Path, output_path: &Path, threshold: Option<u8>, 
 
     edges.save(output_path)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::count_nonzero_bytes;
+
+    #[test]
+    fn counts_nonzero_correctly() {
+        let data = [0u8, 1, 2, 0, 3, 0, 0, 4];
+        assert_eq!(count_nonzero_bytes(&data), 4);
+    }
 }

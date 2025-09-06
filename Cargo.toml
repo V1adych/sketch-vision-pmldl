@@ -7,11 +7,15 @@ description = "A tiny CLI tool to detect edges in images using the Sobel operato
 repository = "https://example.com/your-repo"
 keywords = ["cli", "image", "sobel", "edges"]
 categories = ["command-line-utilities", "graphics"]
+build = "build.rs"
 
 [dependencies]
 anyhow = "1"
 clap = { version = "4.5", features = ["derive"] }
 image = { version = "0.25", default-features = true, features = ["png", "jpeg"] }
+
+[build-dependencies]
+cc = "1"
 
 [profile.release]
 codegen-units = 1

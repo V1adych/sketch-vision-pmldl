@@ -20,11 +20,22 @@ struct Cli {
     /// Invert the output image
     #[arg(long, action = ArgAction::SetTrue)]
     invert: bool,
+
+    /// Print C++ non-zero pixel count on the result image
+    #[arg(long, action = ArgAction::SetTrue)]
+    metric: bool,
 }
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
     sketch_vision::save_edges(&cli.input, &cli.output, cli.threshold, cli.invert)?;
+
+    if cli.metric {
+        let img = image::open(&cli.output)?.to_luma8();
+        let count = sketch_vision::count_nonzero_bytes(img.as_raw());
+        eprintln!("non-zero pixels: {}", count);
+    }
+
     eprintln!(
         "Saved edges to {} (threshold={:?}, invert={})",
         cli.output.display(),
