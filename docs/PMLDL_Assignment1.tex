@@ -1,0 +1,160 @@
+% JAXAXAX Project Report (LaTeX)
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=black
+}
+
+% --------------------
+% Title & Author Block
+% --------------------
+\title{\textbf{JAXAXAX}: Blueprint Reconstruction and Feature Discovery\\\large Interim Report}
+\author{Team JAXAXAX \\[4pt]
+  Nikita Zagainov (\href{mailto:n.zagainov@innopolis.university}{n.zagainov@innopolis.university}) \\
+  Nikita Tsukanov (\href{mailto:n.tsukanov@innopolis.university}{n.tsukanov@innopolis.university}) \\
+  Said Kadirov (\href{mailto:s.kadirov@innopolis.university}{s.kadirov@innopolis.university}) \\
+  Tetkin Dmitry (\href{mailto:d.tetkin@innopolis.university}{d.tetkin@innopolis.university})
+}
+\date{\today}
+
+\begin{document}
+
+% Custom title page with headers
+\begin{center}
+{\Large \textbf{D1.1 Progress Submission}} \\[12pt]
+{\Large \textbf{Practical Machine Learning and Deep Learning}} \\[24pt]
+{\Large \textbf{Blueprint Reconstruction and Feature Discovery}} \\[8pt]
+{\large Interim Report} \\[24pt]
+
+Team JAXAXAX \\[8pt]
+Nikita Zagainov (\href{mailto:n.zagainov@innopolis.university}{n.zagainov@innopolis.university}) \\
+Nikita Tsukanov (\href{mailto:n.tsukanov@innopolis.university}{n.tsukanov@innopolis.university}) \\
+Said Kadirov (\href{mailto:s.kadirov@innopolis.university}{s.kadirov@innopolis.university}) \\
+Tetkin Dmitry (\href{mailto:d.tetkin@innopolis.university}{d.tetkin@innopolis.university}) \\[12pt]
+
+\today
+\end{center}
+
+\begin{abstract}
+We aim to reconstruct blueprint-style sketches from 3D geometry and extract high-level blueprint features. Our pipeline consists of (1) a diffusion model that maps line-art / sketch renderings to surface normal maps and (2) a feature-understanding model that detects and classifies blueprint features to infer applicable design principles. We prepared a synthetic paired dataset (C++-generated sketches and aligned normal maps) and are commencing training of the diffusion component.\footnote{Project repositories: \href{https://github.com/touch-topnotch/sketch-vision}{sketch-vision} and \href{https://github.com/touch-topnotch/sketch-tool}{sketch-tool}.}
+\end{abstract}
+
+\section{Project Topic \\ \small (Short Description, Value, Target Users)}
+\textbf{Final goal.} Reconstruct a clean, blueprint-like sketch from 3D models and derive as much semantic information as possible (e.g., edges, holes, fillets/chamfers, symmetries), producing both an enhanced 2D representation and a surface normal map.
+
+\textbf{Why it matters.} Blueprint extraction accelerates reverse engineering, technical documentation, and quality control workflows. It reduces manual drafting effort and helps downstream CAD/CAM and inspection steps by providing structured, machine-readable features.
+
+\textbf{Target users.} CAD engineers, mechanical designers, architects, technical illustrators, and education/research teams dealing with legacy parts or incomplete drawings.
+
+\section{Repositories and Resources}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Main repository (public):} \href{https://github.com/touch-topnotch/sketch-vision}{github.com/touch-topnotch/sketch-vision}
+  \item \textbf{Research paper (SOTA overview):} \href{https://github.com/touch-topnotch/sketch-vision/blob/main/docs/sketch-vision-eng.pdf}{research.pdf}
+  \item \textbf{C++ converters for dataset generation:} \href{https://github.com/touch-topnotch/sketch-tool}{github.com/touch-topnotch/sketch-tool}
+\end{itemize}
+
+\section{Current Status}
+\begin{itemize}[leftmargin=*]
+  \item Synthetic paired dataset created: automatically generated C++ sketches and aligned normal maps for the same models/poses.
+  \item Data preprocessing scripts in progress; dataset organization for training/validation/test splits.
+  \item Next step: start training the diffusion model for sketch\,$\rightarrow$\,normal map translation.
+\end{itemize}
+
+\section{Dataset}
+We use an in-house \textbf{synthetic dataset} built with \texttt{sketch-tool}, containing pairs of: (a) C++-generated sketches produced via algorithmic line extraction and (b) corresponding normal maps rendered from the same geometry and viewpoint. The dataset will be split into train/val/test with standardized resolution and augmentation (random noise, line-width variation, small geometric jitter) to improve robustness.
+
+% Optional figure placeholder (uncomment and add a sample image path if desired)
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.85\linewidth]{figures/sample_pair.png}
+%   \caption{Example paired data: sketch (left), normal map (right).}
+% \end{figure}
+
+\section{Method}
+\subsection{Model A: Sketch $\rightarrow$ Normal Map (Diffusion)}
+We train a conditional diffusion model to produce per-pixel surface normals from input sketches. The model learns to denoise towards the ground-truth normal distribution while conditioned on the sketch; we explore latent diffusion backbones and control-conditioned variants to better follow line geometry.
+
+\subsection{Model B: Feature Understanding}
+A second model detects blueprint features (e.g., edges, holes, fillets/chamfers, symmetries) and infers design principles they adhere to. We will evaluate both CNN/Transformer backbones for detection/classification and geometric post-processing (e.g., line grouping, Hough-based primitives) for consistent vector outputs.
+
+\section{Research of Competitors / SOTA (with references)}
+For sketch-to-geometry and image-to-image translation, diffusion and adversarial methods set strong baselines, often with structural control:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Latent Diffusion / Stable Diffusion} for efficient high-resolution generation~\cite{rombach2022latent}.
+  \item \textbf{ControlNet} for conditioning generation on control signals like edges/poses~\cite{zhang2023adding}.
+  \item \textbf{Palette (Diffusion)} for general image-to-image translation~\cite{saharia2022palette}.
+  \item \textbf{Pix2Pix} for paired translation tasks~\cite{isola2017image}.
+  \item Classical feature detectors and line extractors for blueprints: \textbf{Canny}~\cite{canny1986} and \textbf{LSD (Line Segment Detector)}~\cite{vonGioi2008lsd} as strong geometric baselines; \textbf{SIFT}~\cite{lowe2004distinctive} for local invariant features.
+\end{itemize}
+A consolidated list of our reviewed approaches and notes is maintained in our research paper: \href{https://github.com/touch-topnotch/sketch-vision/blob/main/docs/sketch-vision-eng.pdf}{\texttt{research.pdf}} (\emph{link to our SOTA solutions}).
+
+\section{Success Criteria and Metrics}
+Primary criteria:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Feature understanding}: mean F1-score over target feature classes (holes, fillets/chamfers, edges, symmetries).
+  \item \textbf{Normal-map accuracy}: percentage of pixels with angular error $<15^{\circ}$; also report MAE and SSIM.
+\end{itemize}
+
+\noindent \textbf{Targets for milestone~1:}
+\begin{itemize}[leftmargin=*]
+  \item Feature understanding F1-score $\geq$ \textbf{0.85} on the test split.
+  \item Normal-map accuracy (\% pixels $<15^{\circ}$) $\geq$ \textbf{90\%}; SSIM $\geq$ \textbf{0.90}.
+\end{itemize}
+
+\section{Work Distribution}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Nikita Tsukanov}: Research of SOTA/competitors, methodology design, model selection.
+  \item \textbf{Nikita Zagainov}: He got in the way and messed up commits.
+  \item \textbf{Tetkin Dmitry}: Implementation of C++ OBJ$\rightarrow$sketch algorithms and dataset generation tools.
+  \item \textbf{Said Kadirov}: Data preprocessing, dataset curation, pipeline glue code.
+\end{itemize}
+
+\section{Risks and Mitigations (Brief)}
+\begin{itemize}[leftmargin=*]
+  \item \emph{Domain gap between synthetic and real blueprints}: use augmentations and, if possible, small real fine-tuning set.
+  \item \emph{Ambiguous lines in sketches}: introduce control signals (e.g., edge maps, depth hints) and post-processing constraints.
+  \item \emph{Generalization to unseen geometries}: diversify parametric CAD primitives and compositions during synthetic generation.
+\end{itemize}
+
+\section{How to Reproduce (Short)}
+\begin{enumerate}[leftmargin=*]
+  \item Clone \href{https://github.com/touch-topnotch/sketch-tool}{\texttt{sketch-tool}} and generate paired (sketch, normal) data as per README.
+  \item Clone \href{https://github.com/touch-topnotch/sketch-vision}{\texttt{sketch-vision}} and follow training instructions (diffusion for sketch$\rightarrow$normal, feature model thereafter).
+  \item Evaluate with our metric scripts to obtain F1, angular error, and SSIM on the test split.
+\end{enumerate}
+
+\section*{Acknowledgments}
+We thank Innopolis University for computing resources and guidance.
+
+\begin{thebibliography}{9}
+\bibitem{rombach2022latent}
+Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, Björn Ommer. ``High-Resolution Image Synthesis with Latent Diffusion Models.'' In \emph{CVPR}, 2022.
+
+\bibitem{zhang2023adding}
+Lvmin Zhang, Maneesh Agrawala. ``Adding Conditional Control to Text-to-Image Diffusion Models.'' 2023. (ControlNet preprint).
+
+\bibitem{saharia2022palette}
+Chitwan Saharia et al. ``Palette: Image-to-Image Diffusion Models.'' In \emph{SIGGRAPH}, 2022.
+
+\bibitem{isola2017image}
+Phillip Isola, Jun-Yan Zhu, Tinghui Zhou, Alexei A. Efros. ``Image-to-Image Translation with Conditional Adversarial Networks.'' In \emph{CVPR}, 2017.
+
+\bibitem{canny1986}
+John Canny. ``A Computational Approach to Edge Detection.'' \emph{IEEE TPAMI}, 1986.
+
+\bibitem{vonGioi2008lsd}
+Rafael~G. von Gioi, Jérémie Jakubowicz, Jean-Michel Morel, Gregory Randall. ``LSD: A Fast Line Segment Detector with a False Detection Control.'' \emph{IEEE TPAMI}, 2010. (Initial tech report, 2008).
+
+\bibitem{lowe2004distinctive}
+David G. Lowe. ``Distinctive Image Features from Scale-Invariant Keypoints.'' \emph{IJCV}, 2004.
+\end{thebibliography}
+
+\end{document}

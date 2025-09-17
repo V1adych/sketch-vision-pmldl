@@ -1,13 +1,11 @@
-/target
-**/*.rs.bk
-.DS_Store
+dataset/
+      
+# Latex         
+*.aux           
+*.synctex.gz   
+•.fdb_latexmk           
+•.fls           
+•.log
 
-*.aux
-*.fdb_latexmk
-*.fls
-*.log
-*.nav
-*.out
-*.snm
-*.toc
-*.synctex.gz
+# MacOS
+*.DS_STORE
