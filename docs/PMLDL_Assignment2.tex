@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
+\usepackage[singlelinecheck=false,justification=centering]{caption}
 \usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage{enumitem}
@@ -20,24 +21,27 @@
 We extend raster-to-program modeling to hand-drawn sketches with engineering annotations. This interim deliverable documents (i) a lightweight synthetic dataset generator with JSON annotations, (ii) visualization and evaluation utilities, and (iii) updated repository documentation. We outline alignment with CAD2Program-style VLMs and next steps.
 \end{abstract}
 
-\section{Overview}
-Our goal is to detect digits, arrows, dimensions, radii, and geometric primitives in noisy sketches, producing a structured representation suitable for downstream CAD. We follow the encoder--decoder paradigm (ViT encoder + LM decoder) summarized in our prior notes (see `docs/sketch-vision-eng.pdf`).
+\section{Repository}
+\url{https://github.com/touch-topnotch/sketch-vision}
 
-\begin{figure}[h]
+\section{Overview}
+Our goal is to detect digits, arrows, dimensions, radii, and geometric primitives in noisy sketches, producing a structured representation suitable for downstream CAD. We follow the encoder--decoder paradigm (ViT encoder + LM decoder) summarized in our prior notes (see \texttt{docs/sketch-vision-eng.pdf}).
+
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.9\linewidth]{internvl.png}
-  \caption{High-level multimodal architecture (reference figure in repo).}
+  \caption{High-level multimodal architecture (reference figure in repo).}\label{fig:internvl}
 \end{figure}
 
 \section{Repository Updates in D1.2}
 \subsection{Synthetic Dataset Generator}
-We added `preprocessing/generate_synthetic.py` that renders rectangles, circles, and line segments with basic dimension labels and produces aligned JSON annotations. It also writes train/val/test splits.
+We added \texttt{preprocessing/generate\_synthetic.py} that renders rectangles, circles, and line segments with basic dimension labels and produces aligned JSON annotations. It also writes train/val/test splits.
 
 \subsection{Visualization and Evaluation}
-`preprocessing/visualize_annotations.py` overlays bounding boxes and labels on top of images. `evaluation/metrics.py` provides IoU; `evaluation/evaluate_synthetic.py` prints simple corpus stats per split.
+\texttt{preprocessing/visualize\_annotations.py} overlays bounding boxes and labels on top of images. \texttt{evaluation/metrics.py} provides IoU; \texttt{evaluation/evaluate\_synthetic.py} prints simple corpus stats per split.
 
 \subsection{Documentation}
-`README.md` now includes a Quickstart showing how to generate a small dataset, visualize a sample, and get stats.
+\texttt{README.md} now includes a Quickstart showing how to generate a small dataset, visualize a sample, and get stats.
 
 \section{Quickstart (Reproducibility)}
 \begin{verbatim}
@@ -51,7 +55,28 @@ python evaluation/evaluate_synthetic.py \
   --splits dataset/synthetic/splits/train.txt
 \end{verbatim}
 
-Generated visualizations can be included in the appendix; see `docs/example.png` for style reference.
+Generated visualizations can be included in the appendix; see \texttt{docs/example.png} for style reference.
+
+\section{Data Visualization}
+We include dataset summary plots generated from the synthetic annotations:
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/primitive_types.png}
+  \caption{Distribution of primitive types in the split.}\label{fig:types}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/primitives_per_image.png}
+  \caption{Per-image primitive counts.}\label{fig:counts}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/bbox_area_hist.png}
+  \caption{Bounding-box area distribution (normalized by image area).}\label{fig:areas}
+\end{figure}
 
 \section{Planned Work}
 \begin{itemize}[leftmargin=*]
@@ -59,9 +84,6 @@ Generated visualizations can be included in the appendix; see `docs/example.png`
   \item Train a detector baseline (ViT/DETR) on synthetic data; add metrics (precision/recall/F1).
   \item Integrate encoder--decoder path for program reconstruction; evaluate sequence accuracy.
 \end{itemize}
-
-\section*{Acknowledgments}
-We thank Innopolis University for support and compute.
 
 \end{document}
 
