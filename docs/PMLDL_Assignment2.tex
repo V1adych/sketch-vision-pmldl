@@ -58,6 +58,16 @@ python preprocessing/visualize_annotations.py \
 python evaluation/evaluate_synthetic.py \
   --annotations-dir dataset/synthetic/annotations \
   --splits dataset/synthetic/splits/train.txt
+
+# New in this update:
+python preprocessing/extract_text_tokens.py \
+  --images-dir dataset/synthetic/images \
+  --annotations-dir dataset/synthetic/annotations
+python scripts/train_detector.py --data-root dataset/synthetic --epochs 1 --batch-size 2
+python evaluation/sequence_metrics.py \
+  --annotations-dir dataset/synthetic/annotations \
+  --splits dataset/synthetic/splits/test.txt \
+  --predictions predictions.tsv
 \end{verbatim}
 
 Generated visualizations can be included in the appendix; see \texttt{docs/example.png} for style reference.
@@ -82,6 +92,15 @@ We include dataset summary plots generated from the synthetic annotations:
   \includegraphics[width=0.85\linewidth]{figs/bbox_area_hist.png}
   \caption{Bounding-box area distribution (normalized by image area).}\label{fig:areas}
 \end{figure}
+
+\section{Implemented Updates aligned with Planned Work}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Expanded primitives}: Added \texttt{arrow} and \texttt{text} tokens to the synthetic generator, updated visualization.
+  \item \textbf{OCR integration}: Added a utility to extract text tokens via Tesseract and store them next to annotations.
+  \item \textbf{Detector baseline}: Provided a minimal training script (Faster R-CNN via torchvision) to train on synthetic data.
+  \item \textbf{Metrics}: Added precision/recall/F1 utilities and sequence-level accuracy (exact match, char accuracy).
+  \item \textbf{Program serialization}: Synthetic annotations now include a \texttt{program} string for encoder--decoder evaluation.
+\end{itemize}
 
 \section{Planned Work}
 \begin{itemize}[leftmargin=*]

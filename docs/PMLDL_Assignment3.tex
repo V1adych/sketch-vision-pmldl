@@ -31,11 +31,6 @@ This update documents repository changes since the previous interim report: expa
 \section{Overview}
 We extend raster-to-program modeling to hand-drawn sketches with engineering annotations. From an input image, we produce a set of detected primitives (geometry and annotation tokens) and a compact symbolic ``program'' suitable for downstream CAD or sequence modeling.
 
-\begin{figure}[!htbp]
-  \centering
-  \includegraphics[width=0.9\linewidth]{internvl.png}
-  \caption{High-level multimodal architecture (reference figure in repo).}\label{fig:internvl_update}
-\end{figure}
 
 \section{Implemented Changes}
 \subsection{Expanded Synthetic Generator}
@@ -85,6 +80,42 @@ python evaluation/sequence_metrics.py \
 
 \section{Data Visualization}
 We include dataset summary plots generated from the synthetic annotations (see figures in \texttt{docs/figs/}). The visualization tool overlays bounding boxes and labels directly on images, now including arrows and text tokens.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/primitive_types.png}
+  \caption{Distribution of primitive types in the dataset. Shows the frequency of each type (rectangle, circle, line, arrow, text) across all annotations.}\label{fig:types}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/primitives_per_image.png}
+  \caption{Histogram of primitive counts per image. Most images contain 3--7 primitives, with a typical range of 2--5 primitives per sketch.}\label{fig:counts}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/bbox_area_hist.png}
+  \caption{Bounding-box area distribution normalized by image area. Most primitives occupy a small fraction of the image (typically 0.1--5\% of total area).}\label{fig:areas}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/bbox_aspect_ratio.png}
+  \caption{Bounding-box aspect ratio distribution (width/height). Shows the shape diversity of primitives, with values near 1.0 indicating square-like shapes and higher values indicating elongated objects (e.g., arrows, lines).}\label{fig:aspect}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/ocr_token_lengths.png}
+  \caption{OCR token length distribution (characters per token). Text primitives in the dataset typically contain 1--3 characters, reflecting common dimension labels and numeric values.}\label{fig:ocr_len}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figs/program_statements.png}
+  \caption{Program statement count per image. The number of statements in the serialized program representation correlates with the number of detected primitives, typically ranging from 2--6 statements per image.}\label{fig:prog_stmt}
+\end{figure}
 
 \section{Future Improvements}
 \begin{itemize}[leftmargin=*]
