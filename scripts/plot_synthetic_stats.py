@@ -74,6 +74,90 @@ def plot_bbox_area_hist(annotations_dir: str, names: List[str], out_dir: str) ->
     plt.close()
 
 
+def plot_ocr_token_length(annotations_dir: str, names: List[str], out_dir: str) -> None:
+    lengths: List[int] = []
+    per_image_counts: List[int] = []
+    for n in names:
+        data = load_json(os.path.join(annotations_dir, f"{n}.json"))
+        tokens = data.get("ocr_gt", [])
+        per_image_counts.append(len(tokens))
+        lengths.extend([len(str(t)) for t in tokens])
+    if not lengths:
+        lengths = [0]
+    plt.figure(figsize=(6, 4))
+    plt.hist(lengths, bins=range(0, max(lengths) + 2), color="#F58518", edgecolor="black")
+    plt.title("OCR Token Lengths")
+    plt.xlabel("chars per token")
+    plt.ylabel("count")
+    plt.tight_layout()
+    ensure_dir(out_dir)
+    plt.savefig(os.path.join(out_dir, "ocr_token_lengths.png"), dpi=200)
+    plt.close()
+
+    plt.figure(figsize=(6, 4))
+    plt.hist(per_image_counts, bins=range(0, max(per_image_counts) + 2), color="#54A24B", edgecolor="black")
+    plt.title("# OCR Tokens per Image")
+    plt.xlabel("tokens per image")
+    plt.ylabel("# images")
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "ocr_tokens_per_image.png"), dpi=200)
+    plt.close()
+
+
+def plot_program_lengths(annotations_dir: str, names: List[str], out_dir: str) -> None:
+    stmt_counts: List[int] = []
+    token_counts: List[int] = []
+    for n in names:
+        data = load_json(os.path.join(annotations_dir, f"{n}.json"))
+        program = str(data.get("program", ""))
+        stmts = [s for s in program.split(";") if s.strip()]
+        stmt_counts.append(len(stmts))
+        token_counts.append(len(program.split()))
+    if not stmt_counts:
+        stmt_counts = [0]
+    if not token_counts:
+        token_counts = [0]
+    plt.figure(figsize=(6, 4))
+    plt.hist(stmt_counts, bins=range(0, max(stmt_counts) + 2), color="#B279A2", edgecolor="black")
+    plt.title("Program Statement Count per Image")
+    plt.xlabel("# statements")
+    plt.ylabel("# images")
+    plt.tight_layout()
+    ensure_dir(out_dir)
+    plt.savefig(os.path.join(out_dir, "program_statements_per_image.png"), dpi=200)
+    plt.close()
+
+    plt.figure(figsize=(6, 4))
+    plt.hist(token_counts, bins=20, color="#FF9DA6", edgecolor="black")
+    plt.title("Program Token Count per Image")
+    plt.xlabel("# tokens")
+    plt.ylabel("# images")
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "program_tokens_per_image.png"), dpi=200)
+    plt.close()
+
+
+def plot_aspect_ratio_hist(annotations_dir: str, names: List[str], out_dir: str) -> None:
+    ratios: List[float] = []
+    for n in names:
+        data = load_json(os.path.join(annotations_dir, f"{n}.json"))
+        for p in data.get("primitives", []):
+            x, y, bw, bh = p.get("bbox", [0, 0, 0, 0])
+            bw = max(1, int(bw))
+            bh = max(1, int(bh))
+            ratios.append(float(bw) / float(bh))
+    if not ratios:
+        ratios = [1.0]
+    plt.figure(figsize=(6, 4))
+    plt.hist(ratios, bins=30, color="#9C755F", edgecolor="black")
+    plt.title("BBox Aspect Ratio (w/h)")
+    plt.xlabel("w/h")
+    plt.ylabel("count")
+    plt.tight_layout()
+    ensure_dir(out_dir)
+    plt.savefig(os.path.join(out_dir, "bbox_aspect_ratio.png"), dpi=200)
+    plt.close()
+
 def read_split(split_path: str) -> List[str]:
     with open(split_path, "r", encoding="utf-8") as f:
         return [line.strip() for line in f if line.strip()]
@@ -94,6 +178,9 @@ def main() -> None:
     plot_primitive_types(args.annotations_dir, names, args.out_dir)
     plot_primitives_per_image(args.annotations_dir, names, args.out_dir)
     plot_bbox_area_hist(args.annotations_dir, names, args.out_dir)
+    plot_ocr_token_length(args.annotations_dir, names, args.out_dir)
+    plot_program_lengths(args.annotations_dir, names, args.out_dir)
+    plot_aspect_ratio_hist(args.annotations_dir, names, args.out_dir)
     print(f"Saved charts to {args.out_dir}")
 
 

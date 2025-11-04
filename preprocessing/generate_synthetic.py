@@ -108,7 +108,43 @@ def draw_line(img: np.ndarray, rng: random.Random) -> Primitive:
     return Primitive("line", bbox, value=str(length))
 
 
-PRIMITIVE_DRAWERS = [draw_rectangle, draw_circle, draw_line]
+def draw_arrow(img: np.ndarray, rng: random.Random) -> Primitive:
+    h, w = img.shape[:2]
+    x1 = rng.randint(10, w - 40)
+    y1 = rng.randint(10, h - 40)
+    x2 = clamp_int(x1 + rng.randint(-w // 4, w // 4), 10, w - 10)
+    y2 = clamp_int(y1 + rng.randint(-h // 4, h // 4), 10, h - 10)
+    color = (0, 0, 0)
+    thickness = rng.choice([1, 2])
+    cv2.arrowedLine(img, (x1, y1), (x2, y2), color, thickness, tipLength=0.15)
+
+    x_min, x_max = min(x1, x2), max(x1, x2)
+    y_min, y_max = min(y1, y2), max(y1, y2)
+    bbox = (x_min, y_min, x_max - x_min, y_max - y_min)
+    # Store coarse direction as value
+    dx, dy = x2 - x1, y2 - y1
+    direction = "right" if abs(dx) >= abs(dy) and dx >= 0 else (
+        "left" if abs(dx) >= abs(dy) else ("down" if dy >= 0 else "up")
+    )
+    return Primitive("arrow", bbox, value=direction)
+
+
+def draw_text_token(img: np.ndarray, rng: random.Random) -> Primitive:
+    h, w = img.shape[:2]
+    value = str(rng.randint(1, 999))
+    x = rng.randint(5, max(5, w - 60))
+    y = rng.randint(15, max(15, h - 5))
+    color = (0, 0, 0)
+    font_scale = rng.choice([0.5, 0.6, 0.7])
+    thickness = rng.choice([1, 2])
+    cv2.putText(img, value, (x, y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, color, thickness, cv2.LINE_AA)
+    # Estimate bbox via text size
+    (tw, th), _ = cv2.getTextSize(value, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+    bbox = (x, y - th, tw, th)
+    return Primitive("text", bbox, value=value)
+
+
+PRIMITIVE_DRAWERS = [draw_rectangle, draw_circle, draw_line, draw_arrow, draw_text_token]
 
 
 def generate_sample(img_size: int, rng: random.Random) -> Tuple[np.ndarray, List[Primitive]]:
@@ -121,7 +157,7 @@ def generate_sample(img_size: int, rng: random.Random) -> Tuple[np.ndarray, List
         n = np.random.default_rng(rng.randint(0, 1 << 30)).integers(0, noise_strength, size=img.shape, dtype=np.uint8)
         img = cv2.subtract(img, n)
 
-    count = rng.randint(2, 5)
+    count = rng.randint(3, 7)
     for _ in range(count):
         drawer = rng.choice(PRIMITIVE_DRAWERS)
         primitives.append(drawer(img, rng))
@@ -137,12 +173,31 @@ def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
+def _serialize_program(primitives: List[Primitive]) -> str:
+    tokens: List[str] = []
+    for p in primitives:
+        x, y, bw, bh = p.bbox
+        if p.type == "rectangle":
+            tokens.append(f"RECT {x} {y} {bw} {bh}")
+        elif p.type == "circle":
+            tokens.append(f"CIRC {x} {y} {bw} {bh} R={p.value}")
+        elif p.type == "line":
+            tokens.append(f"LINE {x} {y} {bw} {bh} L={p.value}")
+        elif p.type == "arrow":
+            tokens.append(f"ARROW {x} {y} {bw} {bh} DIR={p.value}")
+        elif p.type == "text":
+            tokens.append(f"TEXT '{p.value}' {x} {y} {bw} {bh}")
+    return "; ".join(tokens)
+
+
 def write_annotation(json_path: str, image_name: str, w: int, h: int, primitives: List[Primitive]) -> None:
     data = {
         "image": image_name,
         "width": int(w),
         "height": int(h),
         "primitives": [p.to_dict() for p in primitives],
+        "program": _serialize_program(primitives),
+        "ocr_gt": [p.value for p in primitives if p.type == "text" and p.value],
     }
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)

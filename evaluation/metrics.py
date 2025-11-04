@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Iterable, Tuple
 
 
 def compute_iou(box_a: Tuple[int, int, int, int], box_b: Tuple[int, int, int, int]) -> float:
@@ -21,4 +21,28 @@ def compute_iou(box_a: Tuple[int, int, int, int], box_b: Tuple[int, int, int, in
         return 0.0
     return float(inter) / float(denom)
 
+
+
+def precision_recall_f1(tp: int, fp: int, fn: int) -> Tuple[float, float, float]:
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    if precision + recall == 0:
+        f1 = 0.0
+    else:
+        f1 = 2 * precision * recall / (precision + recall)
+    return precision, recall, f1
+
+
+def exact_match(ref: str, hyp: str) -> float:
+    return 1.0 if (ref or "") == (hyp or "") else 0.0
+
+
+def char_accuracy(ref: str, hyp: str) -> float:
+    ref = ref or ""
+    hyp = hyp or ""
+    if not ref and not hyp:
+        return 1.0
+    n = max(len(ref), len(hyp))
+    correct = sum(1 for a, b in zip(ref, hyp) if a == b)
+    return correct / n if n > 0 else 0.0
 

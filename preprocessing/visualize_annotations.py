@@ -23,7 +23,18 @@ def visualize(image_path: str, ann_path: str, out_path: str) -> None:
         bbox = p.get("bbox", [0, 0, 0, 0])
         val = p.get("value", "")
         x, y, w, h = map(int, bbox)
-        color = (0, 128, 255) if t == "rectangle" else (0, 180, 0) if t == "circle" else (180, 0, 0)
+        if t == "rectangle":
+            color = (0, 128, 255)
+        elif t == "circle":
+            color = (0, 180, 0)
+        elif t == "line":
+            color = (180, 0, 0)
+        elif t == "arrow":
+            color = (120, 0, 200)
+        elif t == "text":
+            color = (0, 0, 0)
+        else:
+            color = (100, 100, 100)
         cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
         label = t if not val else f"{t}:{val}"
         cv2.putText(img, label, (x, max(10, y - 5)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1, cv2.LINE_AA)

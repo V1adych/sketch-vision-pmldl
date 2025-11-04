@@ -94,6 +94,20 @@ python preprocessing/visualize_annotations.py \
 python evaluation/evaluate_synthetic.py \
   --annotations-dir dataset/synthetic/annotations \
   --splits dataset/synthetic/splits/train.txt
+
+# 4) (New) Extract OCR tokens from images (requires Tesseract installed)
+python preprocessing/extract_text_tokens.py \
+  --images-dir dataset/synthetic/images \
+  --annotations-dir dataset/synthetic/annotations
+
+# 5) (New) Train a simple detector baseline (Faster R-CNN via torchvision)
+python scripts/train_detector.py --data-root dataset/synthetic --epochs 1 --batch-size 2
+
+# 6) (New) Evaluate sequence accuracy given predicted programs (TSV: name<TAB>program)
+python evaluation/sequence_metrics.py \
+  --annotations-dir dataset/synthetic/annotations \
+  --splits dataset/synthetic/splits/test.txt \
+  --predictions predictions.tsv
 ```
 
 ---
